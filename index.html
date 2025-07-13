@@ -24,7 +24,7 @@
             box-shadow: 0 0 25px #ff00aa, inset 0 0 20px #ff00aa;
         }
 
-#receiver {
+        #receiver {
             border: 2px solid #00fff7;
             padding: 40px;
             width: 70%;
@@ -46,46 +46,34 @@
             display: inline;
         }
 
-        @keyframes flicker {
-            from { opacity: 1; }
-            to { opacity: 0.92; }
-        }
-
-        button {
+        input#codeInput {
             margin-top: 20px;
-            padding: 12px 24px;
-            font-size: 18px;
-            background-color: #00fff7;
-            color: #000;
-            border: none;
+            padding: 10px;
+            width: 80%;
+            background-color: #0d011d;
+            border: 1px solid #00fff7;
+            color: #00fff7;
             font-family: "Courier New", Courier, monospace;
-            cursor: pointer;
-            box-shadow: 0 0 10px #00fff7, inset 0 0 5px #00ccff;
+            font-size: 1em;
+            text-align: center;
+            box-shadow: 0 0 10px #00fff7;
         }
 
-        button:hover {
-            background-color: #00d1c4;
-            box-shadow: 0 0 15px #00fff7;
+        #response {
+            margin-top: 20px;
+            font-size: 1.1em;
+            color: #ff00aa;
+            font-style: italic;
+            text-shadow: 0 0 5px #ff00aa;
         }
 
         audio {
             display: none;
         }
 
-        body::before {
-            content: "";
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: repeating-linear-gradient(
-                to bottom,
-                rgba(255, 255, 255, 0.03),
-                rgba(255, 255, 255, 0.03) 1px,
-                transparent 1px,
-                transparent 3px
-            );
-            pointer-events: none;
-            z-index: 1000;
+        #cursor {
+            animation: blink 1s step-start 0s infinite;
+            text-shadow: 0 0 4px #00fff7;
         }
 
         @keyframes blink {
@@ -94,96 +82,16 @@
             100% { opacity: 1; }
         }
 
-        #cursor {
-            animation: blink 1s step-start 0s infinite;
-            text-shadow: 0 0 4px #00fff7;
-        }
-    
-        #footer {
-            text-align: left;
-            position: relative;
-            overflow: hidden;
-        }
-
-        #footer em {
-            display: inline-block;
-            font-style: italic;
-            animation: glitch 1s infinite;
-        }
-
-        @keyframes glitch {
-            0% { transform: translate(0); opacity: 1; }
-            20% { transform: translate(-1px, 1px); opacity: 0.9; }
-            40% { transform: translate(1px, -1px); opacity: 1; }
-            60% { transform: translate(-1px, 0px); opacity: 0.95; }
-            80% { transform: translate(1px, 1px); opacity: 1; }
-            100% { transform: translate(0); opacity: 0.98; }
-        }
-            margin-top: 20px;
-            font-size: 1em;
-            color: #00fff7;
-            text-align: center;
-            font-style: italic;
-            opacity: 0.85;
-            text-shadow: 0 0 5px #00fff7;
-        }
-    
-        #scanbar {
-            position: absolute;
-            top: 0;
-            left: 0;
-            height: 100%;
-            width: 100%;
-            background: linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.05) 50%, transparent 100%);
-            animation: scan 4s linear infinite;
-            pointer-events: none;
-            z-index: 999;
-        }
-
-        @keyframes scan {
-            0% { transform: translateY(-100%); }
-            100% { transform: translateY(100%); }
-        }
-
-        #glitch-layer {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            mix-blend-mode: screen;
-            background-image: repeating-linear-gradient(
-                to right,
-                rgba(255, 0, 255, 0.03),
-                rgba(0, 255, 255, 0.03) 1px,
-                transparent 1px,
-                transparent 2px
-            );
-            animation: pulse 3s ease-in-out infinite;
-            z-index: 998;
-            pointer-events: none;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 0.03; }
-            50% { opacity: 0.08; }
-        }
-
-        #transmission.pulse span {
-            animation: flash-fade 0.6s ease-in-out infinite;
-        }
-
-        @keyframes flash-fade {
-            0%, 100% { opacity: 0.95; }
-            50% { opacity: 0.6; }
+        #logo {
+            width: 120px;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 5px #00fff7);
         }
     </style>
-
-    
 </head>
 <body>
-<div id="scanbar"></div>
-<div id="glitch-layer"></div>
+    <img src="guide00_logo.png" alt="Guide00 Logo" id="logo">
+
     <audio id="ambientAudio" loop>
         <source src="static.mp3" type="audio/mpeg">
     </audio>
@@ -191,6 +99,8 @@
     <div id="receiver">
         <div id="transmission"><span id="typedText"></span><span id="cursor">█</span></div>
         <button onclick="decrypt()">Receive</button>
+        <input type="text" id="codeInput" placeholder="Enter access code..." onkeydown="if(event.key==='Enter') decodeCode()" />
+        <div id="response"></div>
         <div id="footer"><em>Guide00</em></div>
     </div>
 
@@ -210,16 +120,12 @@
         let audioStarted = false;
 
         function decrypt() {
-            const receiver = document.getElementById("receiver");
-            receiver.classList.add("active");
-            setTimeout(() => {
-                receiver.classList.remove("active");
-                document.getElementById("transmission").classList.remove("pulse");
-            }, 3000);
             const index = Math.floor(Math.random() * transmissions.length);
             const text = transmissions[index];
             const textEl = document.getElementById("typedText");
-            textEl.innerText = ""; document.getElementById("transmission").classList.add("pulse");
+            const receiver = document.getElementById("receiver");
+            document.getElementById("transmission").classList.add("pulse");
+            textEl.innerText = "";
 
             let i = 0;
             function typeChar() {
@@ -231,12 +137,46 @@
             }
 
             typeChar();
+            receiver.classList.add("active");
+            setTimeout(() => {
+                receiver.classList.remove("active");
+                document.getElementById("transmission").classList.remove("pulse");
+            }, 3000);
 
             if (!audioStarted) {
                 const audio = document.getElementById("ambientAudio");
                 audio.play().catch(e => console.log("Autoplay blocked:", e));
                 audioStarted = true;
             }
+        }
+
+        function decodeCode() {
+            const input = document.getElementById("codeInput").value.trim().toLowerCase();
+            const output = document.getElementById("response");
+            let reply = "";
+
+            switch(input) {
+                case "connect":
+                    reply = "Connection confirmed. Signal stable. Proceed with resonance.";
+                    break;
+                case "fragment":
+                    reply = "They broke the story into pixels. You now hold one piece.";
+                    break;
+                case "00":
+                    reply = "Guide00 initialized. Core directive: Restore communication dignity.";
+                    break;
+                case "unknown":
+                    reply = "[[static]] Silence may be safer.";
+                    break;
+                case "echo":
+                    reply = "echo... " + input + "... echo...";
+                    break;
+                default:
+                    reply = "Unrecognized input. Try again.";
+                    break;
+            }
+
+            output.innerText = reply;
         }
     </script>
 </body>
