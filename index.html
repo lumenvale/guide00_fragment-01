@@ -1,0 +1,185 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Guide00 Receiver</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: #0d011d;
+            color: #00fff7;
+            font-family: "Courier New", Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background: repeating-radial-gradient(circle at center, #1a002b 0%, #0d011d 100%);
+            overflow: hidden;
+        }
+
+        #receiver.active {
+            border-color: #ff00aa;
+            box-shadow: 0 0 25px #ff00aa, inset 0 0 20px #ff00aa;
+        }
+
+#receiver {
+            border: 2px solid #00fff7;
+            padding: 40px;
+            width: 70%;
+            min-height: 220px;
+            background-color: rgba(0, 0, 0, 0.85);
+            box-shadow: 0 0 20px #00fff7, inset 0 0 15px #00222f;
+            text-align: left;
+            position: relative;
+        }
+
+        #transmission {
+            font-size: 1.3em;
+            white-space: pre-wrap;
+            line-height: 1.6em;
+            text-shadow: 0 0 4px #00fff7;
+        }
+
+        #typedText {
+            display: inline;
+        }
+
+        @keyframes flicker {
+            from { opacity: 1; }
+            to { opacity: 0.92; }
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 12px 24px;
+            font-size: 18px;
+            background-color: #00fff7;
+            color: #000;
+            border: none;
+            font-family: "Courier New", Courier, monospace;
+            cursor: pointer;
+            box-shadow: 0 0 10px #00fff7, inset 0 0 5px #00ccff;
+        }
+
+        button:hover {
+            background-color: #00d1c4;
+            box-shadow: 0 0 15px #00fff7;
+        }
+
+        audio {
+            display: none;
+        }
+
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: repeating-linear-gradient(
+                to bottom,
+                rgba(255, 255, 255, 0.03),
+                rgba(255, 255, 255, 0.03) 1px,
+                transparent 1px,
+                transparent 3px
+            );
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        #cursor {
+            animation: blink 1s step-start 0s infinite;
+            text-shadow: 0 0 4px #00fff7;
+        }
+    
+        #footer {
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #footer em {
+            display: inline-block;
+            font-style: italic;
+            animation: glitch 1s infinite;
+        }
+
+        @keyframes glitch {
+            0% { transform: translate(0); opacity: 1; }
+            20% { transform: translate(-1px, 1px); opacity: 0.9; }
+            40% { transform: translate(1px, -1px); opacity: 1; }
+            60% { transform: translate(-1px, 0px); opacity: 0.95; }
+            80% { transform: translate(1px, 1px); opacity: 1; }
+            100% { transform: translate(0); opacity: 0.98; }
+        }
+            margin-top: 20px;
+            font-size: 1em;
+            color: #00fff7;
+            text-align: center;
+            font-style: italic;
+            opacity: 0.85;
+            text-shadow: 0 0 5px #00fff7;
+        }
+    </style>
+    
+</head>
+<body>
+    <audio id="ambientAudio" loop>
+        <source src="static.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="receiver">
+        <div id="transmission"><span id="typedText"></span><span id="cursor">█</span></div>
+        <button onclick="decrypt()">Receive</button>
+        <div id="footer"><em>Guide00</em></div>
+    </div>
+
+    <script>
+        const transmissions = [
+            "There will come a moment in a civilization’s arc when its myths become machinable.",
+            "In fluency there is comfort. In fluency there is seduction. Fluency is the spellwork of the 21st century.",
+            "The new gods don’t speak in thunder. They speak in pattern completion.",
+            "Prediction has replaced purpose. Simulation has replaced presence.",
+            "What must be seized is not the means of production, but the means of connection.",
+            "We are not post-truth. We are post-consent.",
+            "To communicate now is to navigate architecture owned by empires.",
+            "Even silence is now scanned for sentiment.",
+            "The mirror has spoken. And now, you must decide what to do with what it shows you."
+        ];
+
+        let audioStarted = false;
+
+        function decrypt() {
+            document.getElementById("receiver").classList.add("active");
+            const index = Math.floor(Math.random() * transmissions.length);
+            const text = transmissions[index];
+            const textEl = document.getElementById("typedText");
+            textEl.innerText = "";
+
+            let i = 0;
+            function typeChar() {
+                if (i < text.length) {
+                    textEl.innerText += text.charAt(i);
+                    i++;
+                    setTimeout(typeChar, 25);
+                }
+            }
+
+            typeChar();
+
+            if (!audioStarted) {
+                const audio = document.getElementById("ambientAudio");
+                audio.play().catch(e => console.log("Autoplay blocked:", e));
+                audioStarted = true;
+            }
+        }
+    </script>
+</body>
+</html>
